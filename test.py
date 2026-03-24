@@ -35,6 +35,8 @@ from models import create_model
 from util.visualizer import save_images
 from util import html
 import torch
+import numpy as np
+from skimage.metrics import structural_similarity as ssim_metric
 
 try:
     import wandb
@@ -66,6 +68,8 @@ if __name__ == "__main__":
     # For [CycleGAN]: It should not affect CycleGAN as CycleGAN uses instancenorm without dropout.
     if opt.eval:
         model.eval()
+    mse_error = []
+    ssim = []
     for i, data in enumerate(dataset):
         if i >= opt.num_test:  # only apply our model to opt.num_test images.
             break
@@ -76,4 +80,10 @@ if __name__ == "__main__":
         if i % 5 == 0:  # save images to an HTML file
             print(f"processing ({i:04d})-th image... {img_path}")
         save_images(webpage, visuals, img_path, aspect_ratio=opt.aspect_ratio, width=opt.display_winsize)
+        # calculate image metrics
+        mse_error.append(np.mean((visuals["real_B"][0].cpu().numpy() - visuals["fake_B"][0].cpu().numpy()) ** 2))
+        ssim.append(ssim_metric(visuals["real_B"][0].cpu().numpy(), visuals["fake_B"][0].cpu().numpy(), channel_axis=0, data_range=np.max(np.max(visuals["real_B"][0].cpu().numpy())), multichannel=True))
+    # print average metrics
+    print(f"Average MSE error: {np.mean(mse_error)} +- {np.std(mse_error)}")
+    print(f"Average SSIM: {np.mean(ssim)} +- {np.std(ssim)}")
     webpage.save()  # save the HTML
