@@ -37,6 +37,7 @@ from util import html
 import torch
 import numpy as np
 from skimage.metrics import structural_similarity as ssim_metric
+import csv
 
 try:
     import wandb
@@ -68,6 +69,7 @@ if __name__ == "__main__":
     # For [CycleGAN]: It should not affect CycleGAN as CycleGAN uses instancenorm without dropout.
     if opt.eval:
         model.eval()
+    # init metrics
     mse_error = []
     ssim = []
     for i, data in enumerate(dataset):
@@ -81,9 +83,26 @@ if __name__ == "__main__":
             print(f"processing ({i:04d})-th image... {img_path}")
         save_images(webpage, visuals, img_path, aspect_ratio=opt.aspect_ratio, width=opt.display_winsize)
         # calculate image metrics
-        mse_error.append(np.mean((visuals["real_B"][0].cpu().numpy() - visuals["fake_B"][0].cpu().numpy()) ** 2))
-        ssim.append(ssim_metric(visuals["real_B"][0].cpu().numpy(), visuals["fake_B"][0].cpu().numpy(), channel_axis=0, data_range=np.max(np.max(visuals["real_B"][0].cpu().numpy())), multichannel=True))
+        real = visuals["real_B"][0].cpu().numpy()
+        fake = visuals["fake_B"][0].cpu().numpy()
+        mse_value  = np.mean((real - fake) ** 2)
+        ssim_value = ssim_metric(real, fake, channel_axis=0, data_range=np.max(np.max(real)), multichannel=True)
+        mse_error.append(mse_value)
+        ssim.append(ssim_value)
     # print average metrics
-    print(f"Average MSE error: {np.mean(mse_error)} +- {np.std(mse_error)}")
-    print(f"Average SSIM: {np.mean(ssim)} +- {np.std(ssim)}")
+    mean_mse = np.mean(mse_error)
+    std_mse = np.std(mse_error)
+    mean_ssim = np.mean(ssim)
+    std_ssim = np.std(ssim)
+    print(f"Average MSE error: {mean_mse} +- {std_mse}")
+    print(f"Average SSIM: {mean_ssim} +- {std_ssim}")
     webpage.save()  # save the HTML
+    # save metrics to csv file
+    csv_path = os.path.join(web_dir, "metrics.csv")
+    with open(csv_path, mode='w', newline='') as csv_file:
+        fieldnames = ['Image Number', 'MSE', 'SSIM']
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+        writer.writeheader()
+        for i, (mse_value, ssim_value) in enumerate(zip(mse_error, ssim)):
+            writer.writerow({'Image Number': i, 'MSE': mse_value, 'SSIM': ssim_value})
+        writer.writerow({'Image Number': 'Mean', 'MSE': mean_mse, 'SSIM': mean_ssim})
