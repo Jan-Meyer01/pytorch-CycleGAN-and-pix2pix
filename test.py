@@ -39,12 +39,6 @@ import numpy as np
 from skimage.metrics import structural_similarity as ssim_metric
 import csv
 
-try:
-    import wandb
-except ImportError:
-    print('Warning: wandb package cannot be found. The option "--use_wandb" will result in error.')
-
-
 if __name__ == "__main__":
     opt = TestOptions().parse()  # get test options
     opt.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -83,9 +77,9 @@ if __name__ == "__main__":
             print(f"processing ({i:04d})-th image... {img_path}")
         save_images(webpage, visuals, img_path, aspect_ratio=opt.aspect_ratio, width=opt.display_winsize)
         # calculate image metrics
-        real = visuals["real_B"][0].cpu().numpy()
-        fake = visuals["fake_B"][0].cpu().numpy()
-        mse_value  = np.mean((real - fake) ** 2)
+        real = np.mean(visuals["real_B"].squeeze().cpu().numpy(), 0)
+        fake = np.mean(visuals["fake_B"].squeeze().cpu().numpy(), 0)
+        mse_value  = np.mean((real[real > 0] - fake[real > 0]) ** 2)
         ssim_value = ssim_metric(real, fake, channel_axis=0, data_range=np.max(np.max(real)), multichannel=True)
         mse_error.append(mse_value)
         ssim.append(ssim_value)
@@ -94,8 +88,8 @@ if __name__ == "__main__":
     std_mse = np.std(mse_error)
     mean_ssim = np.mean(ssim)
     std_ssim = np.std(ssim)
-    print(f"Average MSE error: {mean_mse} +- {std_mse}")
-    print(f"Average SSIM: {mean_ssim} +- {std_ssim}")
+    print("Average MSE in e-3: {:.2f} +- {:.2f}".format(mean_mse * 1000, std_mse * 1000))
+    print("Average SSIM in %: {:.2f} +- {:.2f}".format(mean_ssim * 100, std_ssim * 100))
     webpage.save()  # save the HTML
     # save metrics to csv file
     csv_path = os.path.join(web_dir, "metrics.csv")
