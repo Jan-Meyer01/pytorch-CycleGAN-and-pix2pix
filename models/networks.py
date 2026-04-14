@@ -3,7 +3,12 @@ import torch.nn as nn
 from torch.nn import init
 import functools
 from torch.optim import lr_scheduler
+import lpips
 
+# ignore warnings (mostly for lpips)
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 ###############################################################################
 # Helper Functions
@@ -234,6 +239,8 @@ class GANLoss(nn.Module):
             self.loss = nn.BCEWithLogitsLoss()
         elif gan_mode in ["wgangp"]:
             self.loss = None
+        elif gan_mode == "lpips":
+            self.loss = lpips.LPIPS(net='vgg', version='0.1')
         else:
             raise NotImplementedError("gan mode %s not implemented" % gan_mode)
 
@@ -272,6 +279,12 @@ class GANLoss(nn.Module):
                 loss = -prediction.mean()
             else:
                 loss = prediction.mean()
+        elif self.gan_mode == "lpips":
+            target_tensor = self.get_target_tensor(prediction, target_is_real)
+            # repeat second dimension to convert to RGB
+            prediction    = prediction.repeat(1, 3, 1, 1)
+            target_tensor = target_tensor.repeat(1, 3, 1, 1)
+            loss          = self.loss(prediction, target_tensor)
         return loss
 
 
