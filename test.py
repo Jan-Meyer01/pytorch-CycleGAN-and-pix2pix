@@ -36,8 +36,8 @@ from util.visualizer import save_images
 from util import html
 import torch
 import numpy as np
-from skimage.metrics import structural_similarity as ssim_metric
 import csv
+from piq import ssim, fsim, DISTS, gmsd
 
 if __name__ == "__main__":
     opt = TestOptions().parse()  # get test options
@@ -56,16 +56,22 @@ if __name__ == "__main__":
     web_dir = Path(opt.results_dir) / opt.name / f"{opt.phase}_{opt.epoch}"  # define the website directory
     if opt.load_iter > 0:  # load_iter is 0 by default
         web_dir = Path(f"{web_dir}_iter{opt.load_iter}")
-    print(f"creating web directory {web_dir}")
+    #print(f"creating web directory {web_dir}")
     webpage = html.HTML(web_dir, f"Experiment = {opt.name}, Phase = {opt.phase}, Epoch = {opt.epoch}")
     # test with eval mode. This only affects layers like batchnorm and dropout.
     # For [pix2pix]: we use batchnorm and dropout in the original pix2pix. You can experiment it with and without eval() mode.
     # For [CycleGAN]: It should not affect CycleGAN as CycleGAN uses instancenorm without dropout.
     if opt.eval:
         model.eval()
+    
     # init metrics
-    mse_error = []
-    ssim = []
+    mse_values   = []
+    ssim_values  = []
+    dists_values = []
+    fsim_values  = []
+    gmsd_values  = []
+    #D = DISTS()
+    
     for i, data in enumerate(dataset):
         if i >= opt.num_test:  # only apply our model to opt.num_test images.
             break
@@ -73,30 +79,47 @@ if __name__ == "__main__":
         model.test()  # run inference
         visuals = model.get_current_visuals()  # get image results
         img_path = model.get_image_paths()  # get image paths
-        if i % 5 == 0:  # save images to an HTML file
-            print(f"processing ({i:04d})-th image... {img_path}")
+        #if i % 5 == 0:  # save images to an HTML file
+        #    print(f"processing ({i:04d})-th image... {img_path}")
         save_images(webpage, visuals, img_path, aspect_ratio=opt.aspect_ratio, width=opt.display_winsize)
+        
+        # put images onto the CPU and go from [-1,1] to [0,1]
+        real = visuals["real_B"].squeeze().cpu()#.numpy() #np.mean(, 0)
+        fake = visuals["fake_B"].squeeze().cpu()#.numpy() #np.mean(, 0)
+        real = (real+1)/2
+        fake = (fake+1)/2
+
         # calculate image metrics
-        real = np.mean(visuals["real_B"].squeeze().cpu().numpy(), 0)
-        fake = np.mean(visuals["fake_B"].squeeze().cpu().numpy(), 0)
-        mse_value  = np.mean((real[real > 0] - fake[real > 0]) ** 2)
-        ssim_value = ssim_metric(real, fake, channel_axis=0, data_range=np.max(np.max(real)), multichannel=True)
-        mse_error.append(mse_value)
-        ssim.append(ssim_value)
-    # print average metrics
-    mean_mse = np.mean(mse_error)
-    std_mse = np.std(mse_error)
-    mean_ssim = np.mean(ssim)
-    std_ssim = np.std(ssim)
-    print("Average MSE in e-3: {:.2f} +- {:.2f}".format(mean_mse * 1000, std_mse * 1000))
-    print("Average SSIM in %: {:.2f} +- {:.2f}".format(mean_ssim * 100, std_ssim * 100))
+        mse_values.append(np.mean((real.numpy()[real > 0] - fake.numpy()[real > 0]) ** 2))
+        ssim_values.append(ssim(real.unsqueeze(0), fake.unsqueeze(0), data_range=1.).detach().numpy())
+        dists_values.append((DISTS()(real.unsqueeze(0), fake.unsqueeze(0))).detach().numpy())
+        fsim_values.append(fsim(real.unsqueeze(0), fake.unsqueeze(0), data_range=1.).detach().numpy())
+        gmsd_values.append(gmsd(real.unsqueeze(0), fake.unsqueeze(0), data_range=1.).detach().numpy())
     webpage.save()  # save the HTML
+    
+    # compute and print average metrics
+    mean_mse    = np.mean(mse_values)
+    std_mse     = np.std(mse_values)
+    mean_ssim   = np.mean(ssim_values)
+    std_ssim    = np.std(ssim_values)
+    mean_dists  = np.mean(dists_values)
+    std_dists   = np.std(dists_values)
+    mean_fsim   = np.mean(fsim_values)
+    std_fsim    = np.std(fsim_values)
+    mean_gmsd   = np.mean(gmsd_values)
+    std_gmsd    = np.std(gmsd_values)
+    print("Average MSE in e-3:   {:.3f} +- {:.3f}".format(mean_mse * 1000, std_mse * 1000))
+    print("Average SSIM in %:    {:.2f} +- {:.2f}".format(mean_ssim * 100, std_ssim * 100))
+    print("Average DISTS in e-3: {:.2f} +- {:.2f}".format(mean_dists * 1000, std_dists * 1000))
+    print("Average FSIM in %:    {:.2f} +- {:.2f}".format(mean_fsim * 100, std_fsim * 100))
+    print("Average GMSD  in e-3: {:.2f} +- {:.2f}".format(mean_gmsd * 1000, std_gmsd * 1000))
+    
     # save metrics to csv file
     csv_path = os.path.join(web_dir, "metrics.csv")
     with open(csv_path, mode='w', newline='') as csv_file:
-        fieldnames = ['Image Number', 'MSE', 'SSIM']
+        fieldnames = ['Image Number', 'MSE', 'SSIM', 'DISTS', 'FSIM', 'GMSD']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
-        for i, (mse_value, ssim_value) in enumerate(zip(mse_error, ssim)):
-            writer.writerow({'Image Number': i, 'MSE': mse_value, 'SSIM': ssim_value})
-        writer.writerow({'Image Number': 'Mean', 'MSE': mean_mse, 'SSIM': mean_ssim})
+        for i, (mse_value, ssim_value, dists_value, fsim_value, gmsd_value) in enumerate(zip(mse_values, ssim_values, dists_values, fsim_values, gmsd_values)):
+            writer.writerow({'Image Number': i, 'MSE': mse_value, 'SSIM': ssim_value, 'DISTS': dists_value, 'FSIM': fsim_value, 'GMSD': gmsd_value})
+        writer.writerow({'Image Number': 'Mean', 'MSE': mean_mse, 'SSIM': mean_ssim, 'DISTS': mean_dists, 'FSIM': mean_fsim, 'GMSD': mean_gmsd})

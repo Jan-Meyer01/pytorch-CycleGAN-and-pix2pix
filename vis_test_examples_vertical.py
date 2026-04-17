@@ -24,7 +24,7 @@ real_img = plt.imread(os.path.join(results_dir, real_file))
 # visualize the real and fake images
 fig, axes = plt.subplots(2, 1, figsize=(5, 10))
 axes[0].imshow(fake_img[20:-20,20:-20])
-axes[0].set_title('Network Output', fontsize=20, loc='center', y=0.9, color='white')
+axes[0].set_title('Network Prediction', fontsize=20, loc='center', y=0.9, color='white')
 axes[0].axis('off')
 axes[1].imshow(real_img[20:-20,20:-20])
 axes[1].set_title('Target Image', fontsize=20, loc='center', y=0.9, color='white')
