@@ -123,3 +123,4 @@ if __name__ == "__main__":
         for i, (mse_value, ssim_value, dists_value, fsim_value, gmsd_value) in enumerate(zip(mse_values, ssim_values, dists_values, fsim_values, gmsd_values)):
             writer.writerow({'Image Number': i, 'MSE': mse_value, 'SSIM': ssim_value, 'DISTS': dists_value, 'FSIM': fsim_value, 'GMSD': gmsd_value})
         writer.writerow({'Image Number': 'Mean', 'MSE': mean_mse, 'SSIM': mean_ssim, 'DISTS': mean_dists, 'FSIM': mean_fsim, 'GMSD': mean_gmsd})
+        writer.writerow({'Image Number': 'Std', 'MSE': std_mse, 'SSIM': std_ssim, 'DISTS': std_dists, 'FSIM': std_fsim, 'GMSD': std_gmsd})
