@@ -12,6 +12,9 @@ warnings.filterwarnings("ignore")  # ignore warnings for cleaner output
 
 rc('font', **{'family':'serif', 'serif': ['cmr10']})    # change plot font to Computer Modern Roman (used in LaTeX)
 
+## custom imports
+from util.latex_table import create_latex_table_loss_functions
+
 # init values 
 BASE_DIR   = "./results"
 RUN_NAMES  = ["EPI_modelling_pix2pix_AtoB", "EPI_modelling_pix2pix_BtoA", "EPI_modelling_pix2pix_lpips_AtoB", "EPI_modelling_pix2pix_lpips_BtoA", "EPI_modelling_pix2pix_lpipsSharp_AtoB", "EPI_modelling_pix2pix_lpipsSharp_BtoA"]
@@ -86,34 +89,5 @@ for metric in METRICS:
 
 
 # create LaTeX tables for summary statistics
-latex_df = summary_df_AtoB.copy()
-
-for metric in METRICS:
-    latex_df[metric] = latex_df.apply(
-        lambda row: f"{row[f'{metric}_mean']:.4f} $\\pm$ {row[f'{metric}_std']:.4f}",
-        axis=1
-    )
-
-# Keep only formatted columns
-latex_df = latex_df[["run"] + METRICS]
-
-latex_table = latex_df.to_latex(index=False, escape=False)
-
-with open("./results/results_table_lossFunctions_AtoB.tex", "w") as f:
-    f.write(latex_table)
-
-latex_df = summary_df_BtoA.copy()
-
-for metric in METRICS:
-    latex_df[metric] = latex_df.apply(
-        lambda row: f"{row[f'{metric}_mean']:.4f} $\\pm$ {row[f'{metric}_std']:.4f}",
-        axis=1
-    )
-
-# Keep only formatted columns
-latex_df = latex_df[["run"] + METRICS]
-
-latex_table = latex_df.to_latex(index=False, escape=False)
-
-with open("./results/results_table_lossFunctions_BtoA.tex", "w") as f:
-    f.write(latex_table)
+create_latex_table_loss_functions(summary_df_AtoB.copy(), METRICS, "./results/results_table_lossFunctions_AtoB.tex")
+create_latex_table_loss_functions(summary_df_BtoA.copy(), METRICS, "./results/results_table_lossFunctions_BtoA.tex")
