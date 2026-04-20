@@ -14,6 +14,7 @@ rc('font', **{'family':'serif', 'serif': ['cmr10']})    # change plot font to Co
 
 ## custom imports
 from util.latex_table import create_latex_table_loss_functions
+from util.figures import create_overview_figure
 
 # init values 
 BASE_DIR   = "./results"
@@ -95,3 +96,6 @@ for metric in METRICS:
 # create LaTeX tables for summary statistics
 create_latex_table_loss_functions(summary_df_AtoB.copy(), METRICS, "./results/results_table_lossFunctions_AtoB.tex")
 create_latex_table_loss_functions(summary_df_BtoA.copy(), METRICS, "./results/results_table_lossFunctions_BtoA.tex")
+
+# create overview figure with result examples
+create_overview_figure(RUN_NAMES, 148)
