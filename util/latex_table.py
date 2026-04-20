@@ -1,3 +1,5 @@
+from util.util import shorten_run_name
+
 def create_latex_table_loss_functions(data_frame, METRICS, save_path):
     METRIC_DIRECTION = {
         "MSE": "down",
@@ -66,18 +68,4 @@ def create_latex_table_loss_functions(data_frame, METRICS, save_path):
     # Save to file
     with open(save_path, "w") as f:
         f.write(latex_table)
-
-def shorten_run_name(run_name):
-    '''Shortens the run name to a more concise label for the LaTeX table.'''
-    name = run_name.lower()
-
-    if "lpips" in name and "sharp" in name:
-        return "LPIPS+Grad"
-    elif "msesharp" in name:
-        return "MSE+Grad"
-    elif "sharp" in name:
-        return "Grad"
-    elif "lpips" in name:
-        return "LPIPS"
-    else:
-        return "MSE"  # default pix2pix loss        
+   

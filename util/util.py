@@ -128,3 +128,19 @@ def mkdir(path):
         path (str) -- a single directory path
     """
     Path(path).mkdir(parents=True, exist_ok=True)
+
+
+def shorten_run_name(run_name):
+    '''Shortens the run name to a more concise label.'''
+    name = run_name.lower()
+
+    if "lpips" in name and "sharp" in name:
+        return "LPIPS+Grad"
+    elif "msesharp" in name:
+        return "MSE+Grad"
+    elif "sharp" in name:
+        return "Grad"
+    elif "lpips" in name:
+        return "LPIPS"
+    else:
+        return "MSE"  # default pix2pix loss         
