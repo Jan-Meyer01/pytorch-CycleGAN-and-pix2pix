@@ -45,6 +45,8 @@ def create_figure_runs(run_names, image_num, direction):
             #axes[1,0].imshow(input_img[20:-20,20:-20])
             #axes[1,0].set_title('Input Image', fontsize=20, loc='center', y=0.9, color='white')
             #axes[1,0].axis('off')
+        else:
+            fake_img = find_real_fake_image(results_dir, image_num, mode='fake')    
 
         # visualize fake images for loss function comparison
         if i < len(run_names) // 2:
@@ -52,9 +54,9 @@ def create_figure_runs(run_names, image_num, direction):
             axes[0,(i+1) % num_cols].set_title(f'{shorten_run_name(name)}', fontsize=20, loc='center', y=0.9, color='white')
             axes[0,(i+1) % num_cols].axis('off')
         else:
-            axes[1,i % num_cols].imshow(fake_img[0:-20,20:-20])
-            axes[1,i % num_cols].set_title(f'{shorten_run_name(name)}', fontsize=20, loc='center', y=0.9, color='white')
-            axes[1,i % num_cols].axis('off')
+            axes[1,(i+1) % num_cols].imshow(fake_img[0:-20,20:-20])
+            axes[1,(i+1) % num_cols].set_title(f'{shorten_run_name(name)}', fontsize=20, loc='center', y=0.9, color='white')
+            axes[1,(i+1) % num_cols].axis('off')
 
     # add title for the entire figure and save it
     if direction == "AtoB":
