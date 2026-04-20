@@ -17,7 +17,11 @@ from util.latex_table import create_latex_table_loss_functions
 
 # init values 
 BASE_DIR   = "./results"
-RUN_NAMES  = ["EPI_modelling_pix2pix_AtoB", "EPI_modelling_pix2pix_BtoA", "EPI_modelling_pix2pix_lpips_AtoB", "EPI_modelling_pix2pix_lpips_BtoA", "EPI_modelling_pix2pix_lpipsSharp_AtoB", "EPI_modelling_pix2pix_lpipsSharp_BtoA"]
+RUN_NAMES  = ["EPI_modelling_pix2pix_AtoB", "EPI_modelling_pix2pix_BtoA", 
+              "EPI_modelling_pix2pix_lpips_AtoB", "EPI_modelling_pix2pix_lpips_BtoA", 
+              "EPI_modelling_pix2pix_sharp_AtoB", "EPI_modelling_pix2pix_sharp_BtoA",
+              "EPI_modelling_pix2pix_mseSharp_AtoB", "EPI_modelling_pix2pix_mseSharp_BtoA",
+              "EPI_modelling_pix2pix_lpipsSharp_AtoB", "EPI_modelling_pix2pix_lpipsSharp_BtoA"]
 CSV_NAME   = "metrics.csv"
 METRICS    = ["MSE", "SSIM", "DISTS", "FSIM", "GMSD"]
 NUM_IMAGES = 120
