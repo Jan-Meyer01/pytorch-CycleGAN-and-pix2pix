@@ -14,7 +14,7 @@ rc('font', **{'family':'serif', 'serif': ['cmr10']})    # change plot font to Co
 
 ## custom imports
 from util.latex_table import create_latex_table_loss_functions
-from util.figures import create_overview_figure
+from util.figures import create_figure_runs
 
 # init values 
 BASE_DIR   = "./results"
@@ -68,10 +68,8 @@ for run_name in RUN_NAMES:
     elif run_name.endswith("BtoA"):
         summary_rows_BtoA.append(summary_entry)
 
-all_AtoB        = pd.concat(all_runs_data_AtoB, ignore_index=True)
-all_BtoA        = pd.concat(all_runs_data_BtoA, ignore_index=True)
-summary_df_AtoB = pd.DataFrame(summary_rows_AtoB)
-summary_df_BtoA = pd.DataFrame(summary_rows_BtoA)
+all_AtoB = pd.concat(all_runs_data_AtoB, ignore_index=True) #.apply(lambda row: row.assign(run=shorten_run_name(row["run"])), axis=1)
+all_BtoA = pd.concat(all_runs_data_BtoA, ignore_index=True) #.apply(lambda row: row.assign(run=shorten_run_name(row["run"])), axis=1)
 
 # create boxplots for each metric
 figure_path = './figures'
@@ -82,20 +80,21 @@ for metric in METRICS:
     plt.figure(figsize=(10, 5))
     sns.boxplot(data=all_AtoB, x="run", y=metric)
     plt.tight_layout()
-    plt.savefig(f"{figure_path}/{metric}_boxplot_AtoB.png")
+    plt.savefig(f"{figure_path}/loss-comparison_{metric}_boxplot_AtoB.png")
     plt.close()
 
     # plot BtoA
     plt.figure(figsize=(10, 5))
     sns.boxplot(data=all_BtoA, x="run", y=metric)
     plt.tight_layout()
-    plt.savefig(f"{figure_path}/{metric}_boxplot_BtoA.png")
+    plt.savefig(f"{figure_path}/loss-comparison_{metric}_boxplot_BtoA.png")
     plt.close()
 
 
 # create LaTeX tables for summary statistics
-create_latex_table_loss_functions(summary_df_AtoB.copy(), METRICS, "./results/results_table_lossFunctions_AtoB.tex")
-create_latex_table_loss_functions(summary_df_BtoA.copy(), METRICS, "./results/results_table_lossFunctions_BtoA.tex")
+create_latex_table_loss_functions(pd.DataFrame(summary_rows_AtoB), METRICS, "./results/results_table_lossFunctions_AtoB.tex")
+create_latex_table_loss_functions(pd.DataFrame(summary_rows_BtoA), METRICS, "./results/results_table_lossFunctions_BtoA.tex")
 
-# create overview figure with result examples
-create_overview_figure(RUN_NAMES, 148)
+# create a new figure for each direction
+create_figure_runs([name for name in RUN_NAMES if name.endswith("AtoB")], 148, f"{figure_path}/loss-comparison_AtoB")
+create_figure_runs([name for name in RUN_NAMES if name.endswith("BtoA")], 148, f"{figure_path}/loss-comparison_BtoA")

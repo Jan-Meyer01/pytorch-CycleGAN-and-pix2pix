@@ -20,18 +20,11 @@ def create_example_images(name, image_num):
     plt.subplots_adjust(hspace=0.03)
     plt.savefig(os.path.join('./results', name, 'test_latest', name+'_test-comparison_{}.png'.format(image_num)), bbox_inches='tight')
 
-def create_overview_figure(run_names, image_num):
-    # split run names into AtoB and BtoA
-    run_names_AtoB = [name for name in run_names if name.endswith("AtoB")]
-    run_names_BtoA = [name for name in run_names if name.endswith("BtoA")]
-
-    # create a new figure for each direction
-    create_figure_runs(run_names_AtoB, image_num, "AtoB")
-    create_figure_runs(run_names_BtoA, image_num, "BtoA")    
-
-def create_figure_runs(run_names, image_num, direction):
+def create_figure_runs(run_names, image_num, save_name):
     num_cols = int(np.ceil(len(run_names)/2))
     fig, axes = plt.subplots(2, num_cols, figsize=(4 * num_cols, 8.8))
+    fontsize = 16
+    y_pos = 0.85
 
     # read test examples for different runs
     for i, name in enumerate(run_names):
@@ -39,8 +32,8 @@ def create_figure_runs(run_names, image_num, direction):
         if i == 0:
             fake_img, real_img, input_img = find_real_fake_image(results_dir, image_num, mode='input+fake+real')
             # visualize the real and fake images
-            axes[0,0].imshow(real_img[0:-20,20:-20])
-            axes[0,0].set_title('Target Image', fontsize=20, loc='center', y=0.9, color='white')
+            axes[0,0].imshow(real_img[0:-20,20:-20], cmap='gray', interpolation='none')
+            axes[0,0].set_title('Target Image', fontsize=fontsize, loc='center', y=y_pos, color='white')
             axes[0,0].axis('off')
             #axes[1,0].imshow(input_img[20:-20,20:-20])
             #axes[1,0].set_title('Input Image', fontsize=20, loc='center', y=0.9, color='white')
@@ -50,22 +43,22 @@ def create_figure_runs(run_names, image_num, direction):
 
         # visualize fake images for loss function comparison
         if i < len(run_names) // 2:
-            axes[0,(i+1) % num_cols].imshow(fake_img[0:-20,20:-20])
-            axes[0,(i+1) % num_cols].set_title(f'{shorten_run_name(name)}', fontsize=20, loc='center', y=0.9, color='white')
+            axes[0,(i+1) % num_cols].imshow(fake_img[0:-20,20:-20], cmap='gray', interpolation='none')
+            axes[0,(i+1) % num_cols].set_title(f'{shorten_run_name(name)}', fontsize=fontsize, loc='center', y=y_pos, color='white')
             axes[0,(i+1) % num_cols].axis('off')
         else:
-            axes[1,(i+1) % num_cols].imshow(fake_img[0:-20,20:-20])
-            axes[1,(i+1) % num_cols].set_title(f'{shorten_run_name(name)}', fontsize=20, loc='center', y=0.9, color='white')
+            axes[1,(i+1) % num_cols].imshow(fake_img[0:-20,20:-20], cmap='gray', interpolation='none')
+            axes[1,(i+1) % num_cols].set_title(f'{shorten_run_name(name)}', fontsize=fontsize, loc='center', y=y_pos, color='white')
             axes[1,(i+1) % num_cols].axis('off')
 
     # add title for the entire figure and save it
-    if direction == "AtoB":
-        fig.suptitle('Adding Artifacts', fontsize=24, y=0.92)
-    else:
-        fig.suptitle('Removing Artifacts', fontsize=24, y=0.92)
+    if save_name.endswith("AtoB"):
+        fig.suptitle('Adding Artifacts', fontsize=22, y=0.93)
+    elif save_name.endswith("BtoA"):
+        fig.suptitle('Removing Artifacts', fontsize=22, y=0.93)
 
     fig.subplots_adjust(hspace=0, wspace=0)
-    plt.savefig(os.path.join('./results', 'loss-comparison_{}_exampleImg{}.png'.format(direction, image_num)), dpi=300, bbox_inches='tight',pad_inches=0)
+    plt.savefig('{}_exampleImg{}.png'.format(save_name, image_num), dpi=300, bbox_inches='tight',pad_inches=0)
 
 def find_real_fake_image(results_dir, image_num, mode='fake'):
     assert mode == 'fake' or mode == 'fake+real' or mode == 'input+fake+real', "Invalid mode. Must be 'fake', 'fake+real' or 'input+fake+real'."
