@@ -43,13 +43,12 @@ def create_figure_runs(run_names, image_num, save_name):
 
         # visualize fake images for loss function comparison
         if i < len(run_names) // 2:
-            axes[0,(i+1) % num_cols].imshow(fake_img[0:-20,20:-20], cmap='gray', interpolation='none')
-            axes[0,(i+1) % num_cols].set_title(f'{shorten_run_name(name)}', fontsize=fontsize, loc='center', y=y_pos, color='white')
-            axes[0,(i+1) % num_cols].axis('off')
+            row = 0
         else:
-            axes[1,(i+1) % num_cols].imshow(fake_img[0:-20,20:-20], cmap='gray', interpolation='none')
-            axes[1,(i+1) % num_cols].set_title(f'{shorten_run_name(name)}', fontsize=fontsize, loc='center', y=y_pos, color='white')
-            axes[1,(i+1) % num_cols].axis('off')
+            row = 1
+        axes[row,(i+1) % num_cols].imshow(fake_img[0:-20,20:-20], cmap='gray', interpolation='none')
+        axes[row,(i+1) % num_cols].set_title(f'{shorten_run_name(name)}', fontsize=fontsize, loc='center', y=y_pos, color='white')
+        axes[row,(i+1) % num_cols].axis('off')
 
     # add title for the entire figure and save it
     if save_name.endswith("AtoB"):
