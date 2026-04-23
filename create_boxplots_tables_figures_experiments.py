@@ -10,8 +10,8 @@ warnings.filterwarnings("ignore")  # ignore warnings for cleaner output
 rc('font', **{'family':'serif', 'serif': ['cmr10']})    # change plot font to Computer Modern Roman (used in LaTeX)
 
 ## custom imports
-from util.latex_table import create_latex_table_loss_functions
-from util.figures import create_figure_runs
+from util.latex_table import create_latex_table_lossFunctions, create_latex_table_generator
+from util.figures     import create_figure_runs_lossFunctions, create_figure_runs_generator
 
 parser = argparse.ArgumentParser(description="Create boxplots, LaTeX tables, and example figures for different experiments.")
 parser.add_argument("--base_dir",   type=str,  default="./results",                              help="Base directory containing the run subdirectories.")
@@ -99,11 +99,19 @@ for metric in args.metrics:
     plt.savefig(f"{save_path}/{args.experiment}_{metric}_boxplot_BtoA.png")
     plt.close()
 
+if args.experiment == "lossFunctions":
+    # create LaTeX tables for summary statistics
+    create_latex_table_lossFunctions(pd.DataFrame(summary_rows_AtoB), args.metrics, f"{save_path}/lossFunctions_table_AtoB.tex")
+    create_latex_table_lossFunctions(pd.DataFrame(summary_rows_BtoA), args.metrics, f"{save_path}/lossFunctions_table_BtoA.tex")
 
-# create LaTeX tables for summary statistics
-create_latex_table_loss_functions(pd.DataFrame(summary_rows_AtoB), args.metrics, f"{save_path}/{args.experiment}_table_AtoB.tex")
-create_latex_table_loss_functions(pd.DataFrame(summary_rows_BtoA), args.metrics, f"{save_path}/{args.experiment}_table_BtoA.tex")
+    # create a new figure for each direction
+    create_figure_runs_lossFunctions([name for name in run_names if name.endswith("AtoB")], 148, f"{save_path}/lossFunctions_AtoB")
+    create_figure_runs_lossFunctions([name for name in run_names if name.endswith("BtoA")], 148, f"{save_path}/lossFunctions_BtoA")
+elif args.experiment == "generator":
+    # create LaTeX tables for summary statistics
+    create_latex_table_generator(pd.DataFrame(summary_rows_AtoB), args.metrics, f"{save_path}/generator_table_AtoB.tex")
+    create_latex_table_generator(pd.DataFrame(summary_rows_BtoA), args.metrics, f"{save_path}/generator_table_BtoA.tex")
 
-# create a new figure for each direction
-create_figure_runs([name for name in run_names if name.endswith("AtoB")], 148, f"{save_path}/{args.experiment}_AtoB")
-create_figure_runs([name for name in run_names if name.endswith("BtoA")], 148, f"{save_path}/{args.experiment}_BtoA")
+    # create a new figure for each direction
+    create_figure_runs_generator([name for name in run_names if name.endswith("AtoB")], 148, f"{save_path}/generator_AtoB")
+    create_figure_runs_generator([name for name in run_names if name.endswith("BtoA")], 148, f"{save_path}/generator_BtoA")

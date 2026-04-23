@@ -130,7 +130,7 @@ def mkdir(path):
     Path(path).mkdir(parents=True, exist_ok=True)
 
 
-def shorten_run_name(run_name):
+def shorten_run_names_lossFunctions(run_name):
     '''Shortens the run name to a more concise label.'''
     name = run_name.lower()
 
@@ -143,4 +143,17 @@ def shorten_run_name(run_name):
     elif "lpips" in name:
         return "LPIPS"
     else:
-        return "MSE"  # default pix2pix loss         
+        return "MSE"  # default pix2pix loss    
+    
+       
+def shorten_run_names_generator(run_name):
+    '''Shortens the run name to a more concise label.'''
+    name = run_name.lower() 
+    if "resnet9" in name:
+        return "ResNet-9"
+    elif "resnet6" in name:
+        return "ResNet-6"
+    elif "unet128" in name:
+        return "UNet-128"
+    else:
+        return "UNet-256"  # default pix2pix generator         
