@@ -35,7 +35,7 @@ elif args.experiment == "generator":
                   "EPI_modelling_pix2pix_sharp_AtoB",         "EPI_modelling_pix2pix_sharp_BtoA",
                   "EPI_modelling_pix2pix_sharp_unet128_AtoB", "EPI_modelling_pix2pix_sharp_unet128_BtoA"]    
 
-save_path = './figures/{}'.format(args.experiment)
+save_path = './evaluation/{}'.format(args.experiment)
 
 all_runs_data_AtoB = []
 summary_rows_AtoB  = []
@@ -101,8 +101,8 @@ for metric in args.metrics:
 
 
 # create LaTeX tables for summary statistics
-create_latex_table_loss_functions(pd.DataFrame(summary_rows_AtoB), args.metrics, f"{save_path}/results_table_{args.experiment}_AtoB.tex")
-create_latex_table_loss_functions(pd.DataFrame(summary_rows_BtoA), args.metrics, f"{save_path}/results_table_{args.experiment}_BtoA.tex")
+create_latex_table_loss_functions(pd.DataFrame(summary_rows_AtoB), args.metrics, f"{save_path}/{args.experiment}_table_AtoB.tex")
+create_latex_table_loss_functions(pd.DataFrame(summary_rows_BtoA), args.metrics, f"{save_path}/{args.experiment}_table_BtoA.tex")
 
 # create a new figure for each direction
 create_figure_runs([name for name in run_names if name.endswith("AtoB")], 148, f"{save_path}/{args.experiment}_AtoB")
