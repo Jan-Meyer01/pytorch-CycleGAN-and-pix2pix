@@ -26,13 +26,13 @@ assert args.experiment in ["lossFunctions", "generator"], "Experiment name must 
 if args.experiment == "lossFunctions":
     run_names  = ["EPI_modelling_pix2pix_AtoB",               "EPI_modelling_pix2pix_BtoA", 
                   "EPI_modelling_pix2pix_lpips_AtoB",         "EPI_modelling_pix2pix_lpips_BtoA", 
-                  "EPI_modelling_pix2pix_sharp_AtoB",         "EPI_modelling_pix2pix_sharp_BtoA",
+                  "EPI_modelling_pix2pix_sharp_unet256_AtoB", "EPI_modelling_pix2pix_sharp_unet256_BtoA",
                   "EPI_modelling_pix2pix_mseSharp_AtoB",      "EPI_modelling_pix2pix_mseSharp_BtoA",
                   "EPI_modelling_pix2pix_lpipsSharp_AtoB",    "EPI_modelling_pix2pix_lpipsSharp_BtoA"]
 elif args.experiment == "generator":
     run_names  = ["EPI_modelling_pix2pix_sharp_resnet9_AtoB", "EPI_modelling_pix2pix_sharp_resnet9_BtoA", 
                   "EPI_modelling_pix2pix_sharp_resnet6_AtoB", "EPI_modelling_pix2pix_sharp_resnet6_BtoA", 
-                  "EPI_modelling_pix2pix_sharp_AtoB",         "EPI_modelling_pix2pix_sharp_BtoA",
+                  "EPI_modelling_pix2pix_sharp_unet256_AtoB", "EPI_modelling_pix2pix_sharp_unet256_BtoA",
                   "EPI_modelling_pix2pix_sharp_unet128_AtoB", "EPI_modelling_pix2pix_sharp_unet128_BtoA"]    
 
 save_path = './evaluation/{}'.format(args.experiment)
