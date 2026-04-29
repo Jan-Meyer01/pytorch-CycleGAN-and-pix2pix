@@ -10,30 +10,28 @@ warnings.filterwarnings("ignore")  # ignore warnings for cleaner output
 rc('font', **{'family':'serif', 'serif': ['cmr10']})    # change plot font to Computer Modern Roman (used in LaTeX)
 
 ## custom imports
-from util.latex_table import create_latex_table_lossFunctions, create_latex_table_generator
-from util.figures     import create_figure_runs_lossFunctions, create_figure_runs_generator
+from util.latex_table import create_latex_table_generators_lossFunctions
+from util.figures     import create_figure_runs_generators_lossFunctions
 
 parser = argparse.ArgumentParser(description="Create boxplots, LaTeX tables, and example figures for different experiments.")
 parser.add_argument("--base_dir",   type=str,  default="./results",                              help="Base directory containing the run subdirectories.")
-parser.add_argument("--experiment", type=str,  default="lossFunctions",                          help="Name of the experiment - either lossFunctions or generator.")
+parser.add_argument("--experiment", type=str,  default="lossFunctions",                          help="Name of the experiment - either lossFunctions or generators.")
 parser.add_argument("--csv_name",   type=str,  default="metrics.csv",                            help="Name of the CSV file containing metrics in each run's test_latest directory.")
 parser.add_argument("--metrics",    nargs="+", default=["MSE", "SSIM", "DISTS", "FSIM", "GMSD"], help="List of metrics to process.")
 parser.add_argument("--num_images", type=int,  default=120,                                      help="Number of images (rows) in the CSV file before the summary statistics start.")
 args = parser.parse_args()
 
-assert args.experiment in ["lossFunctions", "generator"], "Experiment name must be either 'lossFunctions' or 'generator'."
+assert args.experiment in ["lossFunctions", "generators"], "Experiment name must be either 'lossFunctions' or 'generators'."
 
-if args.experiment == "lossFunctions":
-    run_names  = ["EPI_modelling_pix2pix_AtoB",               "EPI_modelling_pix2pix_BtoA", 
-                  "EPI_modelling_pix2pix_lpips_AtoB",         "EPI_modelling_pix2pix_lpips_BtoA", 
-                  "EPI_modelling_pix2pix_sharp_unet256_AtoB", "EPI_modelling_pix2pix_sharp_unet256_BtoA",
-                  "EPI_modelling_pix2pix_mseSharp_AtoB",      "EPI_modelling_pix2pix_mseSharp_BtoA",
-                  "EPI_modelling_pix2pix_lpipsSharp_AtoB",    "EPI_modelling_pix2pix_lpipsSharp_BtoA"]
-elif args.experiment == "generator":
-    run_names  = ["EPI_modelling_pix2pix_sharp_resnet9_AtoB", "EPI_modelling_pix2pix_sharp_resnet9_BtoA", 
-                  "EPI_modelling_pix2pix_sharp_resnet6_AtoB", "EPI_modelling_pix2pix_sharp_resnet6_BtoA", 
-                  "EPI_modelling_pix2pix_sharp_unet256_AtoB", "EPI_modelling_pix2pix_sharp_unet256_BtoA",
-                  "EPI_modelling_pix2pix_sharp_unet128_AtoB", "EPI_modelling_pix2pix_sharp_unet128_BtoA"]    
+if args.experiment == "generators_lossFunctions":
+    run_names  = ["EPI_modelling_SE_pix2pix_sharp_resnet9_AtoB", "EPI_modelling_SE_pix2pix_sharp_resnet9_BtoA",
+                  "EPI_modelling_SE_pix2pix_sharp_resnet6_AtoB", "EPI_modelling_SE_pix2pix_sharp_resnet6_BtoA",
+                  "EPI_modelling_SE_pix2pix_sharp_unet256_AtoB", "EPI_modelling_SE_pix2pix_sharp_unet256_BtoA",
+                  "EPI_modelling_SE_pix2pix_sharp_unet128_AtoB", "EPI_modelling_SE_pix2pix_sharp_unet128_BtoA",
+                  "EPI_modelling_SE_pix2pix_lpips_resnet9_AtoB", "EPI_modelling_SE_pix2pix_lpips_resnet9_BtoA",
+                  "EPI_modelling_SE_pix2pix_lpips_resnet6_AtoB", "EPI_modelling_SE_pix2pix_lpips_resnet6_BtoA",
+                  "EPI_modelling_SE_pix2pix_lpips_unet256_AtoB", "EPI_modelling_SE_pix2pix_lpips_unet256_BtoA",
+                  "EPI_modelling_SE_pix2pix_lpips_unet128_AtoB", "EPI_modelling_SE_pix2pix_lpips_unet128_BtoA"] 
 
 save_path = './evaluation/{}'.format(args.experiment)
 
@@ -99,19 +97,11 @@ for metric in args.metrics:
     plt.savefig(f"{save_path}/{args.experiment}_{metric}_boxplot_BtoA.png")
     plt.close()
 
-if args.experiment == "lossFunctions":
+if args.experiment == "generators_lossFunctions":
     # create LaTeX tables for summary statistics
-    create_latex_table_lossFunctions(pd.DataFrame(summary_rows_AtoB), args.metrics, f"{save_path}/lossFunctions_table_AtoB.tex")
-    create_latex_table_lossFunctions(pd.DataFrame(summary_rows_BtoA), args.metrics, f"{save_path}/lossFunctions_table_BtoA.tex")
+    create_latex_table_generators_lossFunctions(pd.DataFrame(summary_rows_AtoB), args.metrics, f"{save_path}/generators_lossFunctions_table_AtoB.tex")
+    create_latex_table_generators_lossFunctions(pd.DataFrame(summary_rows_BtoA), args.metrics, f"{save_path}/generators_lossFunctions_table_BtoA.tex")
 
     # create a new figure for each direction
-    create_figure_runs_lossFunctions([name for name in run_names if name.endswith("AtoB")], 148, f"{save_path}/lossFunctions_AtoB")
-    create_figure_runs_lossFunctions([name for name in run_names if name.endswith("BtoA")], 148, f"{save_path}/lossFunctions_BtoA")
-elif args.experiment == "generator":
-    # create LaTeX tables for summary statistics
-    create_latex_table_generator(pd.DataFrame(summary_rows_AtoB), args.metrics, f"{save_path}/generator_table_AtoB.tex")
-    create_latex_table_generator(pd.DataFrame(summary_rows_BtoA), args.metrics, f"{save_path}/generator_table_BtoA.tex")
-
-    # create a new figure for each direction
-    create_figure_runs_generator([name for name in run_names if name.endswith("AtoB")], 148, f"{save_path}/generator_AtoB")
-    create_figure_runs_generator([name for name in run_names if name.endswith("BtoA")], 148, f"{save_path}/generator_BtoA")
+    create_figure_runs_generators_lossFunctions([name for name in run_names if name.endswith("AtoB")], 148, f"{save_path}/generators_lossFunctions_AtoB")
+    create_figure_runs_generators_lossFunctions([name for name in run_names if name.endswith("BtoA")], 148, f"{save_path}/generators_lossFunctions_BtoA")

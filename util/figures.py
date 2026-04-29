@@ -93,6 +93,44 @@ def create_figure_runs_generator(run_names, image_num, save_name):
     fig.subplots_adjust(hspace=0, wspace=0)
     plt.savefig('{}_exampleImg{}.png'.format(save_name, image_num), dpi=300, bbox_inches='tight',pad_inches=0)
 
+def create_figure_runs_generators_lossFunctions(run_names, image_num, save_name):
+    fig, axes = plt.subplots(2, len(run_names)+1, figsize=(4 * (len(run_names)+1), 5))
+    fontsize = 16
+    y_pos = 0.85
+
+    # read test examples for different runs
+    for i, name in enumerate(run_names):
+        results_dir = os.path.join('./results', name, 'test_latest', 'images')
+        if i == 0:
+            fake_img, real_img, input_img = find_real_fake_image(results_dir, image_num, mode='input+fake+real')
+            # visualize the real and fake images
+            axes[0,0].imshow(input_img[20:-20,20:-20])
+            axes[0,0].set_title('Input Image', fontsize=20, loc='center', y=0.9, color='white')
+            axes[0,0].axis('off')
+            axes[1,0].imshow(real_img[0:-20,20:-20], cmap='gray', interpolation='none')
+            axes[1,0].set_title('Target Image', fontsize=fontsize, loc='center', y=y_pos, color='white')
+            axes[1,0].axis('off')
+        else:
+            fake_img = find_real_fake_image(results_dir, image_num, mode='fake')    
+
+        # visualize fake images for loss function comparison
+        if i < len(run_names) // 2:
+            row = 0
+        else:
+            row = 1
+        axes[row, (i+1)].imshow(fake_img[0:-20,20:-20], cmap='gray', interpolation='none')
+        axes[row, (i+1)].set_title(f'{shorten_run_names_generator(name)}', fontsize=fontsize, loc='center', y=y_pos, color='white')
+        axes[row, (i+1)].axis('off')
+
+    # add title for the entire figure and save it
+    if save_name.endswith("AtoB"):
+        fig.suptitle('Adding Artifacts', fontsize=22, y=0.93)
+    elif save_name.endswith("BtoA"):
+        fig.suptitle('Removing Artifacts', fontsize=22, y=0.93)
+
+    fig.subplots_adjust(hspace=0, wspace=0)
+    plt.savefig('{}_exampleImg{}.png'.format(save_name, image_num), dpi=300, bbox_inches='tight',pad_inches=0)
+
 def find_real_fake_image(results_dir, image_num, mode='fake'):
     assert mode == 'fake' or mode == 'fake+real' or mode == 'input+fake+real', "Invalid mode. Must be 'fake', 'fake+real' or 'input+fake+real'."
 
