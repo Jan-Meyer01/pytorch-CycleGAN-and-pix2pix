@@ -84,7 +84,7 @@ def create_latex_table_generators_lossFunctions(data_frame, METRICS, save_path):
         loss = shorten_run_names_lossFunctions(row["Loss"])
 
         if loss != current_loss:
-            loss_str = f"\\multirow{{4}}{{*}}{{\\rotatebox[origin=c]{{90}}{{{loss}}}}}"
+            loss_str = f"\\hline\n\\multirow{{4}}{{*}}{{\\rotatebox[origin=c]{{90}}{{{loss}}}}}"
             current_loss = loss
         else:
             loss_str = ""
@@ -93,17 +93,16 @@ def create_latex_table_generators_lossFunctions(data_frame, METRICS, save_path):
         rows.append(" & ".join(row_values) + " \\\\")
     
     # create header for the table
-    header = " & ".join(["Loss", "Generator"] + column_names) + " \\\\ \\hline"
+    header = " & ".join(["", "Generator"] + column_names) + " \\\\ \\hline"
 
-    # create the final table
+    # create the final table (within a resizebox to fit in text width)
     latex_table = (
-        "\\begin{tabular}{l l " + "c" * len(METRICS) + "}\n"
+        "\\resizebox{\\textwidth}{!}{\\begin{tabular}{l l " + "c" * len(METRICS) + "}\n"
         "\\hline\n"
         + header + "\n"
-        + "\\hline\n"
         + "\n".join(rows) + "\n"
         "\\hline\n"
-        "\\end{tabular}"
+        "\\end{tabular}}"
     )
 
     # Save to file

@@ -1,14 +1,15 @@
-\begin{tabular}{l l ccccc}
+\resizebox{\textwidth}{!}{\begin{tabular}{l l ccccc}
 \hline
-Loss & Generator & MSE $\downarrow$ & SSIM $\uparrow$ & DISTS $\downarrow$ & FSIM $\uparrow$ & GMSD $\downarrow$ \\ \hline
+ & Generator & MSE $\downarrow$ & SSIM $\uparrow$ & DISTS $\downarrow$ & FSIM $\uparrow$ & GMSD $\downarrow$ \\ \hline
 \hline
 \multirow{4}{*}{\rotatebox[origin=c]{90}{Grad}} & ResNet-6 & 10.36 $\pm$ 3.58 & \textbf{84.49 $\pm$ 2.10} & 91.07 $\pm$ 20.25 & \textbf{92.38 $\pm$ 1.41} & 118.12 $\pm$ 15.84 \\
  & ResNet-9 & \textbf{10.19 $\pm$ 3.13} & 84.43 $\pm$ 2.09 & 88.19 $\pm$ 21.67 & 92.34 $\pm$ 1.47 & \textbf{117.58 $\pm$ 15.49} \\
  & UNet-128 & 13.28 $\pm$ 3.96 & 81.13 $\pm$ 1.63 & 106.11 $\pm$ 19.69 & 91.12 $\pm$ 1.25 & 132.60 $\pm$ 11.79 \\
  & UNet-256 & 13.22 $\pm$ 3.94 & 81.19 $\pm$ 1.57 & 110.69 $\pm$ 18.91 & 91.09 $\pm$ 1.43 & 131.87 $\pm$ 12.61 \\
+\hline
 \multirow{4}{*}{\rotatebox[origin=c]{90}{LPIPS}} & ResNet-6 & 10.99 $\pm$ 3.61 & 83.52 $\pm$ 1.92 & 89.36 $\pm$ 19.00 & 92.09 $\pm$ 1.32 & 119.75 $\pm$ 14.63 \\
  & ResNet-9 & 10.63 $\pm$ 3.29 & 83.84 $\pm$ 1.96 & \textbf{83.98 $\pm$ 19.46} & 92.18 $\pm$ 1.26 & 118.03 $\pm$ 13.60 \\
  & UNet-128 & 13.29 $\pm$ 4.03 & 81.11 $\pm$ 1.85 & 105.15 $\pm$ 20.25 & 91.14 $\pm$ 1.30 & 132.23 $\pm$ 11.33 \\
  & UNet-256 & 13.91 $\pm$ 4.25 & 80.52 $\pm$ 1.66 & 107.62 $\pm$ 20.52 & 90.95 $\pm$ 1.48 & 133.81 $\pm$ 13.09 \\
 \hline
-\end{tabular}
+\end{tabular}}
