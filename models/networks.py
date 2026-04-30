@@ -233,13 +233,13 @@ class GANLoss(nn.Module):
         self.register_buffer("real_label", torch.tensor(target_real_label))
         self.register_buffer("fake_label", torch.tensor(target_fake_label))
         self.gan_mode = gan_mode
-        if gan_mode == "lsgan" or gan_mode == "mseSharp":
+        if gan_mode == "lsgan":
             self.loss = nn.MSELoss()
         elif gan_mode == "vanilla":
             self.loss = nn.BCEWithLogitsLoss()
-        elif gan_mode in ["wgangp", "sharp"]:
+        elif gan_mode in ["wgangp", "grad"]:
             self.loss = None
-        elif gan_mode == "lpips" or gan_mode == "lpipsSharp":
+        elif gan_mode == "lpips":
             self.loss = lpips.LPIPS(net='vgg', version='0.1')
         else:
             raise NotImplementedError("gan mode %s not implemented" % gan_mode)
@@ -291,29 +291,12 @@ class GANLoss(nn.Module):
             prediction    = prediction.repeat(1, 3, 1, 1)
             target_tensor = target_tensor.repeat(1, 3, 1, 1)
             loss          = self.loss(prediction, target_tensor)
-        elif self.gan_mode == "sharp":
+        elif self.gan_mode == "grad":
             target_tensor = self.get_target_tensor(prediction, target_is_real)
-            # add a sharpness term to the loss
+            # add gradient loss for sharpness
             pred_grad_x, pred_grad_y = gradient(prediction)
             target_grad_x, target_grad_y = gradient(target_tensor)
             loss = (pred_grad_x - target_grad_x).abs().mean() + (pred_grad_y - target_grad_y).abs().mean()
-        elif self.gan_mode == "mseSharp":
-            target_tensor = self.get_target_tensor(prediction, target_is_real)
-            # add a sharpness term to the loss
-            pred_grad_x, pred_grad_y = gradient(prediction)
-            target_grad_x, target_grad_y = gradient(target_tensor)
-            grad_loss = (pred_grad_x - target_grad_x).abs().mean() + (pred_grad_y - target_grad_y).abs().mean()
-            loss = self.loss(prediction, target_tensor) + 0.1 * grad_loss    
-        elif self.gan_mode == "lpipsSharp":
-            target_tensor = self.get_target_tensor(prediction, target_is_real)
-            # repeat second dimension to convert to RGB
-            prediction    = prediction.repeat(1, 3, 1, 1)
-            target_tensor = target_tensor.repeat(1, 3, 1, 1)
-            # add a sharpness term to the loss
-            pred_grad_x, pred_grad_y = gradient(prediction)
-            target_grad_x, target_grad_y = gradient(target_tensor)
-            grad_loss = (pred_grad_x - target_grad_x).abs().mean() + (pred_grad_y - target_grad_y).abs().mean()
-            loss = self.loss(prediction, target_tensor) + 0.1 * grad_loss
 
         return loss
 

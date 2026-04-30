@@ -35,9 +35,6 @@ def create_figure_runs_lossFunctions(run_names, image_num, save_name):
             axes[0,0].imshow(real_img[0:-20,20:-20], cmap='gray', interpolation='none')
             axes[0,0].set_title('Target Image', fontsize=fontsize, loc='center', y=y_pos, color='white')
             axes[0,0].axis('off')
-            #axes[1,0].imshow(input_img[20:-20,20:-20])
-            #axes[1,0].set_title('Input Image', fontsize=20, loc='center', y=0.9, color='white')
-            #axes[1,0].axis('off')
         else:
             fake_img = find_real_fake_image(results_dir, image_num, mode='fake')    
 
@@ -73,9 +70,6 @@ def create_figure_runs_generator(run_names, image_num, save_name):
             axes[0].imshow(real_img[0:-20,20:-20], cmap='gray', interpolation='none')
             axes[0].set_title('Target Image', fontsize=fontsize, loc='center', y=y_pos, color='white')
             axes[0].axis('off')
-            #axes[1].imshow(input_img[20:-20,20:-20])
-            #axes[1].set_title('Input Image', fontsize=20, loc='center', y=0.9, color='white')
-            #axes[1].axis('off')
         else:
             fake_img = find_real_fake_image(results_dir, image_num, mode='fake')    
 
@@ -94,9 +88,12 @@ def create_figure_runs_generator(run_names, image_num, save_name):
     plt.savefig('{}_exampleImg{}.png'.format(save_name, image_num), dpi=300, bbox_inches='tight',pad_inches=0)
 
 def create_figure_runs_generators_lossFunctions(run_names, image_num, save_name):
-    fig, axes = plt.subplots(2, len(run_names)+1, figsize=(4 * (len(run_names)+1), 5))
-    fontsize = 16
-    y_pos = 0.85
+    num_cols = int(np.ceil((len(run_names))/2))+1
+    fig, axes = plt.subplots(2, num_cols, figsize=((len(run_names)+1), 4.5))
+    fontsize_main = 16
+    fontsize_small = 12
+    y_pos_main = 0.8
+    y_pos_small = 0.725
 
     # read test examples for different runs
     for i, name in enumerate(run_names):
@@ -104,23 +101,24 @@ def create_figure_runs_generators_lossFunctions(run_names, image_num, save_name)
         if i == 0:
             fake_img, real_img, input_img = find_real_fake_image(results_dir, image_num, mode='input+fake+real')
             # visualize the real and fake images
-            axes[0,0].imshow(input_img[20:-20,20:-20])
-            axes[0,0].set_title('Input Image', fontsize=20, loc='center', y=0.9, color='white')
+            axes[0,0].imshow(input_img[0:-20,20:-20])
+            axes[0,0].set_title('Input Image', fontsize=fontsize_main, loc='center', y=y_pos_main, color='white')
             axes[0,0].axis('off')
             axes[1,0].imshow(real_img[0:-20,20:-20], cmap='gray', interpolation='none')
-            axes[1,0].set_title('Target Image', fontsize=fontsize, loc='center', y=y_pos, color='white')
+            axes[1,0].set_title('Target Image', fontsize=fontsize_main, loc='center', y=y_pos_main, color='white')
             axes[1,0].axis('off')
         else:
             fake_img = find_real_fake_image(results_dir, image_num, mode='fake')    
 
         # visualize fake images for loss function comparison
         if i < len(run_names) // 2:
-            row = 0
+            axes[0, i+1].imshow(fake_img[0:-20,20:-20], cmap='gray', interpolation='none')
+            axes[0, i+1].set_title(f'{shorten_run_names_generator(name)}\n{shorten_run_names_lossFunctions(name)}', fontsize=fontsize_small, loc='center', y=y_pos_small, color='white')
+            axes[0, i+1].axis('off')
         else:
-            row = 1
-        axes[row, (i+1)].imshow(fake_img[0:-20,20:-20], cmap='gray', interpolation='none')
-        axes[row, (i+1)].set_title(f'{shorten_run_names_generator(name)}', fontsize=fontsize, loc='center', y=y_pos, color='white')
-        axes[row, (i+1)].axis('off')
+            axes[1, i+2 - num_cols].imshow(fake_img[0:-20,20:-20], cmap='gray', interpolation='none')
+            axes[1, i+2 - num_cols].set_title(f'{shorten_run_names_generator(name)}\n{shorten_run_names_lossFunctions(name)}', fontsize=fontsize_small, loc='center', y=y_pos_small, color='white')
+            axes[1, i+2 - num_cols].axis('off')
 
     # add title for the entire figure and save it
     if save_name.endswith("AtoB"):

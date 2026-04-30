@@ -134,11 +134,7 @@ def shorten_run_names_lossFunctions(run_name):
     '''Shortens the run name to a more concise label.'''
     name = run_name.lower()
 
-    if "lpips" in name and "sharp" in name:
-        return "LPIPS+Grad"
-    elif "msesharp" in name:
-        return "MSE+Grad"
-    elif "sharp" in name:
+    if "grad" in name:
         return "Grad"
     elif "lpips" in name:
         return "LPIPS"
@@ -156,4 +152,14 @@ def shorten_run_names_generator(run_name):
     elif "unet128" in name:
         return "UNet-128"
     else:
-        return "UNet-256"  # default pix2pix generator         
+        return "UNet-256"  # default pix2pix generator    
+
+def parse_run_name(run_name):
+    parts = run_name.split("_")
+
+    # Example: EPI_modelling_SE_pix2pix_grad_resnet9_AtoB
+    loss = parts[4]         # grad / lpips
+    architecture = parts[5] # resnet9, ...
+
+    return loss, architecture
+     
