@@ -237,10 +237,8 @@ class GANLoss(nn.Module):
             self.loss = nn.MSELoss()
         elif gan_mode == "vanilla":
             self.loss = nn.BCEWithLogitsLoss()
-        elif gan_mode in ["wgangp", "grad"]:
+        elif gan_mode in "wgangp":
             self.loss = None
-        elif gan_mode == "lpips":
-            self.loss = lpips.LPIPS(net='vgg', version='0.1')
         else:
             raise NotImplementedError("gan mode %s not implemented" % gan_mode)
 
@@ -271,11 +269,6 @@ class GANLoss(nn.Module):
         Returns:
             the calculated loss.
         """
-        def gradient(x):
-            # compute the gradient of the image
-            grad_x = x[:, :, 1:, :] - x[:, :, :-1, :]
-            grad_y = x[:, :, :, 1:] - x[:, :, :, :-1]
-            return grad_x, grad_y
 
         if self.gan_mode in ["lsgan", "vanilla"]:
             target_tensor = self.get_target_tensor(prediction, target_is_real)
@@ -285,18 +278,6 @@ class GANLoss(nn.Module):
                 loss = -prediction.mean()
             else:
                 loss = prediction.mean()
-        elif self.gan_mode == "lpips":
-            target_tensor = self.get_target_tensor(prediction, target_is_real)
-            # repeat second dimension to convert to RGB
-            prediction    = prediction.repeat(1, 3, 1, 1)
-            target_tensor = target_tensor.repeat(1, 3, 1, 1)
-            loss          = self.loss(prediction, target_tensor)
-        elif self.gan_mode == "grad":
-            target_tensor = self.get_target_tensor(prediction, target_is_real)
-            # add gradient loss for sharpness
-            pred_grad_x, pred_grad_y = gradient(prediction)
-            target_grad_x, target_grad_y = gradient(target_tensor)
-            loss = (pred_grad_x - target_grad_x).abs().mean() + (pred_grad_y - target_grad_y).abs().mean()
 
         return loss
 

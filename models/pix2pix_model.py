@@ -63,7 +63,7 @@ class Pix2PixModel(BaseModel):
         if self.isTrain:
             # define loss functions
             self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)  # move to the device for custom loss
-            self.criterionL1 = torch.nn.L1Loss()
+            self.criterionL1  = torch.nn.L1Loss()
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
             self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizer_D = torch.optim.Adam(self.netD.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
@@ -102,15 +102,28 @@ class Pix2PixModel(BaseModel):
         self.loss_D.backward()
 
     def backward_G(self):
-        """Calculate GAN and L1 loss for the generator"""
+        """Calculate GAN, L1 and gradient loss for the generator"""
+        
         # First, G(A) should fake the discriminator
         fake_AB = torch.cat((self.real_A, self.fake_B), 1)
         pred_fake = self.netD(fake_AB)
         self.loss_G_GAN = self.criterionGAN(pred_fake, True)
+        
         # Second, G(A) = B
         self.loss_G_L1 = self.criterionL1(self.fake_B, self.real_B) * self.opt.lambda_L1
+
+        # Third, add sharpness regularization via gradient loss
+        def gradient(x):
+            # compute the gradient of the image
+            grad_x = x[:, :, 1:, :] - x[:, :, :-1, :]
+            grad_y = x[:, :, :, 1:] - x[:, :, :, :-1]
+            return grad_x, grad_y
+        pred_grad_x,   pred_grad_y   = gradient(self.fake_B)
+        target_grad_x, target_grad_y = gradient(self.real_B)
+        self.loss_G_grad = (pred_grad_x - target_grad_x).abs().mean() + (pred_grad_y - target_grad_y).abs().mean()
+
         # combine loss and calculate gradients
-        self.loss_G = self.loss_G_GAN + self.loss_G_L1
+        self.loss_G = self.loss_G_GAN + self.loss_G_L1 + self.loss_G_grad
         self.loss_G.backward()
 
     def optimize_parameters(self):
@@ -125,3 +138,5 @@ class Pix2PixModel(BaseModel):
         self.optimizer_G.zero_grad()  # set G's gradients to zero
         self.backward_G()  # calculate graidents for G
         self.optimizer_G.step()  # update G's weights
+
+    
