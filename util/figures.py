@@ -164,7 +164,7 @@ def create_overview_figure(run_names, run_path, image_num, save_name):
     plt.savefig('{}_exampleImg{}.png'.format(save_name, image_num), dpi=300, bbox_inches='tight',pad_inches=0)
 
 def create_overview_diff_figure(run_names, run_path, dir_num, image_num, save_name):
-    fig, axes = plt.subplots(2, len(run_names)+1, figsize=(4 * (len(run_names)+1), 10))
+    fig, axes = plt.subplots(2, len(run_names)+1, figsize=(4 * (len(run_names)+1), 8.8))
     fontsize = 16
     y_pos = 0.85
 
@@ -193,12 +193,6 @@ def create_overview_diff_figure(run_names, run_path, dir_num, image_num, save_na
         axes[0,(i+1)].axis('off')
         axes[1,(i+1)].imshow(abs(real_img[0:-20,20:-20]-fake_img[0:-20,20:-20]), cmap='gray', interpolation='none')
         axes[1,(i+1)].axis('off')
-
-    # add title for the entire figure and save it
-    if save_name.endswith("AtoB"):
-        fig.suptitle('Adding Artifacts', fontsize=22, y=0.93)
-    elif save_name.endswith("BtoA"):
-        fig.suptitle('Removing Artifacts', fontsize=22, y=0.93)
 
     fig.subplots_adjust(hspace=0, wspace=0)
     plt.savefig('{}_exampleImgDiff_{}_{}.png'.format(save_name, dir_num, image_num), dpi=300, bbox_inches='tight',pad_inches=0)    
