@@ -151,7 +151,7 @@ def create_latex_table_overview(data_frame, METRICS, save_path):
     # Add arrows to column names
     column_names = []
     for metric in METRICS:
-        arrow = "$\\downarrow$" if METRIC_DIRECTION[metric] == "down" else "$\\uparrow$"
+        arrow = "$[10^{-3}] \\downarrow$" if METRIC_DIRECTION[metric] == "down" else "$[\\%] \\uparrow$"
         column_names.append(f"{metric} {arrow}")
 
     # create columns for the table

@@ -69,7 +69,7 @@ for metric in args.metrics:
     plt.close()
 
 # create LaTeX tables for summary statistics
-create_latex_table_overview(pd.DataFrame(summary_rows_BtoA), args.metrics, f"{save_path}/table_BtoA.tex")
+create_latex_table_overview(pd.DataFrame(summary_rows_BtoA), args.metrics, f"{save_path}/pre-train_fine-tune_table.tex")
 
 # create a new overview figure
 create_overview_diff_figure([name for name in run_names], os.path.join(args.base_dir, 'DWI_pix2pix_grad_resnet9_BtoA'), 6, 6, f"{save_path}/overview_BtoA")
