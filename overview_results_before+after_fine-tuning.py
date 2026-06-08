@@ -17,7 +17,7 @@ parser = argparse.ArgumentParser(description="Create boxplots, LaTeX tables, and
 parser.add_argument("--base_dir",   type=str,  default="./results",                              help="Base directory containing the run subdirectories.")
 parser.add_argument("--csv_name",   type=str,  default="metrics.csv",                            help="Name of the CSV file containing metrics in each run's test_latest directory.")
 parser.add_argument("--metrics",    nargs="+", default=["MSE", "SSIM", "DISTS", "FSIM", "GMSD"], help="List of metrics to process.")
-parser.add_argument("--num_images", type=int,  default=4440,                                     help="Number of images (rows) in the CSV file before the summary statistics start.")
+parser.add_argument("--num_images", type=int,  default=6660,                                     help="Number of images (rows) in the CSV file before the summary statistics start.")
 args = parser.parse_args()
 
 num_images = args.num_images
@@ -71,5 +71,8 @@ for metric in args.metrics:
 # create LaTeX tables for summary statistics
 create_latex_table_overview(pd.DataFrame(summary_rows_BtoA), args.metrics, f"{save_path}/pre-train_fine-tune_table.tex")
 
-# create a new overview figure
-create_overview_diff_figure([name for name in run_names], os.path.join(args.base_dir, 'DWI_pix2pix_grad_resnet9_BtoA'), 6, 6, f"{save_path}/overview_BtoA")
+# create a new overview figure (one per b-value)
+create_overview_diff_figure([name for name in run_names], os.path.join(args.base_dir, 'DWI_pix2pix_grad_resnet9_BtoA'), 0, 12, f"{save_path}/b0")    # b=0
+create_overview_diff_figure([name for name in run_names], os.path.join(args.base_dir, 'DWI_pix2pix_grad_resnet9_BtoA'), 8, 12, f"{save_path}/b500")  # b=500
+create_overview_diff_figure([name for name in run_names], os.path.join(args.base_dir, 'DWI_pix2pix_grad_resnet9_BtoA'), 2, 12, f"{save_path}/b1000") # b=1000
+create_overview_diff_figure([name for name in run_names], os.path.join(args.base_dir, 'DWI_pix2pix_grad_resnet9_BtoA'), 1, 12, f"{save_path}/b2000") # b=1000
