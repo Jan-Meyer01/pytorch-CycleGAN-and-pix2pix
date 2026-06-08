@@ -109,6 +109,82 @@ def create_latex_table_generators_lossFunctions(data_frame, METRICS, save_path):
     with open(save_path, "w") as f:
         f.write(latex_table)
 
+def create_latex_table_overview(data_frame, METRICS, save_path):
+    METRIC_DIRECTION = {
+        "MSE":   "down",
+        "SSIM":  "up",
+        "DISTS": "down",
+        "FSIM":  "up",
+        "GMSD":  "down"
+    }
+    
+    # Determine best values (based on mean)
+    best_indices = {}
+    for metric in METRICS:
+        if METRIC_DIRECTION[metric] == "down":
+            best_idx = data_frame[f"{metric}_mean"].idxmin()
+        else:
+            best_idx = data_frame[f"{metric}_mean"].idxmax()
+        best_indices[metric] = best_idx
+
+    # Format values
+    for metric in METRICS:
+        formatted_col = []
+
+        for idx, row in data_frame.iterrows():
+            mean = row[f"{metric}_mean"]
+            std  = row[f"{metric}_std"]
+
+            if metric in ["MSE", "DISTS", "GMSD"]:
+                value_str = f"{mean*1000:.2f} $\\pm$ {std*1000:.2f}"
+            else:
+                value_str = f"{mean*100:.2f} $\\pm$ {std*100:.2f}"
+
+            # Bold best value
+            if idx == best_indices[metric]:
+                value_str = f"\\textbf{{{value_str}}}"
+
+            formatted_col.append(value_str)
+
+        data_frame[metric] = formatted_col
+
+    # Add arrows to column names
+    column_names = []
+    for metric in METRICS:
+        arrow = "$\\downarrow$" if METRIC_DIRECTION[metric] == "down" else "$\\uparrow$"
+        column_names.append(f"{metric} {arrow}")
+
+    # create columns for the table
+    data_frame = data_frame[["run"] + METRICS]
+    data_frame.columns = ["epochs"] + column_names
+
+    # create rows for the table
+    rows = []
+
+    for _, row in data_frame.iterrows():
+        if row["epochs"] == 'Epoch_100':
+            row_values = ['Pre-Training'] + [row[m] for m in column_names]
+        elif row["epochs"] == 'Epoch_115':
+            row_values = ['Fine-Tuning'] + [row[m] for m in column_names]
+        rows.append(" & ".join(row_values) + " \\\\")
+    
+    # create header for the table
+    header = " & ".join(["Epoch"] + column_names) + " \\\\ \\hline"
+
+    # create the final table (within a resizebox to fit in text width)
+    latex_table = (
+        "\\resizebox{\\textwidth}{!}{\\begin{tabular}{l l " + "c" * len(METRICS) + "}\n"
+        "\\hline\n"
+        + header + "\n"
+        + "\n".join(rows) + "\n"
+        "\\hline\n"
+        "\\end{tabular}}"
+    )
+
+    # Save to file
+    with open(save_path, "w") as f:
+        f.write(latex_table)
+
 def create_latex_table(data_frame, METRICS, save_path):
     METRIC_DIRECTION = {
         "MSE": "down",
