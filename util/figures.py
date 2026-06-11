@@ -129,39 +129,52 @@ def create_figure_runs_generators_lossFunctions(run_names, image_num, save_name)
     fig.subplots_adjust(hspace=0, wspace=0)
     plt.savefig('{}_exampleImg{}.png'.format(save_name, image_num), dpi=300, bbox_inches='tight',pad_inches=0)
 
-def create_overview_figure(run_names, run_path, image_num, save_name):
-    fig, axes = plt.subplots(1, len(run_names)+2, figsize=(4 * (len(run_names)+2), 5))
+def create_comparison_figure(run_path, dir_num, image_num, save_name):
+    fig, axes = plt.subplots(1, 3, figsize=(4 * 3, 5))
     fontsize = 16
     y_pos = 0.85
 
     # read test examples for different runs
-    for i, name in enumerate(run_names):
-        results_dir = os.path.join(run_path, name, 'images')
-        if i == 0:
-            fake_img, real_img, input_img = find_real_fake_image(results_dir, image_num, mode='input+fake+real')
-            # visualize the real and fake images
-            axes[0].imshow(input_img[0:-20,20:-20])
-            axes[0].set_title('Input Image', fontsize=fontsize, loc='center', y=y_pos, color='white')
-            axes[0].axis('off')
-            axes[1].imshow(real_img[0:-20,20:-20], cmap='gray', interpolation='none')
-            axes[1].set_title('Target Image', fontsize=fontsize, loc='center', y=y_pos, color='white')
-            axes[1].axis('off')
-        else:
-            fake_img = find_real_fake_image(results_dir, image_num, mode='fake')    
-
-        # visualize fake images for loss function comparison
-        axes[(i+2)].imshow(fake_img[0:-20,20:-20], cmap='gray', interpolation='none')
-        axes[(i+2)].set_title(name, fontsize=fontsize, loc='center', y=y_pos, color='white')
-        axes[(i+2)].axis('off')
-
-    # add title for the entire figure and save it
-    if save_name.endswith("AtoB"):
-        fig.suptitle('Adding Artifacts', fontsize=22, y=0.93)
-    elif save_name.endswith("BtoA"):
-        fig.suptitle('Removing Artifacts', fontsize=22, y=0.93)
+    results_dir = os.path.join(run_path, 'images')
+    fake_img, real_img, input_img = find_real_fake_image(results_dir, dir_num, image_num, mode='input+fake+real')
+    # visualize the real and fake images
+    axes[0].imshow(input_img[0:-20,20:-20])
+    axes[0].set_title('Input Image', fontsize=fontsize, loc='center', y=y_pos, color='white')
+    axes[0].axis('off')
+    axes[1].imshow(fake_img[0:-20,20:-20])
+    axes[1].set_title('Network Output', fontsize=fontsize, loc='center', y=y_pos, color='white')
+    axes[1].axis('off')
+    axes[2].imshow(real_img[0:-20,20:-20], cmap='gray', interpolation='none')
+    axes[2].set_title('Target Image', fontsize=fontsize, loc='center', y=y_pos, color='white')
+    axes[2].axis('off')
 
     fig.subplots_adjust(hspace=0, wspace=0)
-    plt.savefig('{}_exampleImg{}.png'.format(save_name, image_num), dpi=300, bbox_inches='tight',pad_inches=0)
+    plt.savefig('{}_exampleImg_{}_{}.png'.format(save_name, dir_num, image_num), dpi=300, bbox_inches='tight', pad_inches=0) 
+
+def create_comparison_four_b_values_figure(run_path, dir_nums, image_num, save_name):
+    fig, axes   = plt.subplots(4, 3, figsize=(3 * 4, 4 * 4.45))
+    fontsize    = 18
+    y_pos       = 0.9
+    results_dir = os.path.join(run_path, 'images')
+
+    # read and visualize test examples for different runs
+    for i, dir_num in enumerate(dir_nums):
+        fake_img, real_img, input_img = find_real_fake_image(results_dir, dir_num, image_num, mode='input+fake+real')
+        axes[i,0].imshow(input_img[15:-35,35:-35])
+        if i == 0:
+            axes[i,0].set_title('Input Image', fontsize=fontsize, loc='center', y=y_pos, color='white')
+        axes[i,0].axis('off')
+        axes[i,1].imshow(fake_img[15:-35,35:-35])
+        if i == 0:
+            axes[i,1].set_title('Network Output', fontsize=fontsize, loc='center', y=y_pos, color='white')
+        axes[i,1].axis('off')
+        axes[i,2].imshow(real_img[15:-35,35:-35], cmap='gray', interpolation='none')
+        if i == 0:
+            axes[i,2].set_title('Target Image', fontsize=fontsize, loc='center', y=y_pos, color='white')
+        axes[i,2].axis('off')
+
+    fig.subplots_adjust(hspace=0, wspace=0)
+    plt.savefig('{}_example_b-values_Img_{}.png'.format(save_name, image_num), dpi=300, bbox_inches='tight', pad_inches=0) 
 
 def create_overview_diff_figure(run_names, run_path, dir_num, image_num, save_name):
     fig, axes = plt.subplots(2, len(run_names)+1, figsize=(4 * (len(run_names)+1), 8.8))

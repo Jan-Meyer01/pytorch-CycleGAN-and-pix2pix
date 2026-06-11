@@ -173,7 +173,7 @@ def create_latex_table_overview(data_frame, METRICS, save_path):
 
     # create the final table (within a resizebox to fit in text width)
     latex_table = (
-        "\\resizebox{\\textwidth}{!}{\\begin{tabular}{l l " + "c" * len(METRICS) + "}\n"
+        "\\resizebox{\\textwidth}{!}{\\begin{tabular}{l " + "c" * len(METRICS) + "}\n"
         "\\hline\n"
         + header + "\n"
         + "\n".join(rows) + "\n"

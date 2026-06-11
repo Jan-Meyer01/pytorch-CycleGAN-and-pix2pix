@@ -15,21 +15,23 @@ from util.figures     import create_overview_figure, create_overview_diff_figure
 
 parser = argparse.ArgumentParser(description="Create boxplots, LaTeX tables, and example figures for different experiments.")
 parser.add_argument("--base_dir",   type=str,  default="./results",                              help="Base directory containing the run subdirectories.")
+parser.add_argument("--name",       type=str,  default="DWI_pix2pix_grad_resnet9",               help="Name of the model.")
 parser.add_argument("--csv_name",   type=str,  default="metrics.csv",                            help="Name of the CSV file containing metrics in each run's test_latest directory.")
 parser.add_argument("--metrics",    nargs="+", default=["MSE", "SSIM", "DISTS", "FSIM", "GMSD"], help="List of metrics to process.")
 parser.add_argument("--num_images", type=int,  default=6660,                                     help="Number of images (rows) in the CSV file before the summary statistics start.")
 args = parser.parse_args()
 
 num_images = args.num_images
+name       = args.name
 
 run_names = ["Epoch_100", "Epoch_115"]
-save_path = './evaluation/before+after_fine-tuning'
+save_path = './evaluation/{name}/before+after_fine-tuning'
 
 all_runs_data_BtoA = []
 summary_rows_BtoA  = []
 
 for run_name in run_names:
-    csv_path = os.path.join(args.base_dir, 'DWI_pix2pix_grad_resnet9_BtoA', run_name, args.csv_name)
+    csv_path = os.path.join(args.base_dir, name, run_name, args.csv_name)
 
     if not os.path.isfile(csv_path):
         print(f"Warning: CSV file not found for '{run_name}' at path '{csv_path}' - Skipping!")
@@ -75,4 +77,4 @@ create_latex_table_overview(pd.DataFrame(summary_rows_BtoA), args.metrics, f"{sa
 create_overview_diff_figure([name for name in run_names], os.path.join(args.base_dir, 'DWI_pix2pix_grad_resnet9_BtoA'), 0, 12, f"{save_path}/b0")    # b=0
 create_overview_diff_figure([name for name in run_names], os.path.join(args.base_dir, 'DWI_pix2pix_grad_resnet9_BtoA'), 8, 12, f"{save_path}/b500")  # b=500
 create_overview_diff_figure([name for name in run_names], os.path.join(args.base_dir, 'DWI_pix2pix_grad_resnet9_BtoA'), 2, 12, f"{save_path}/b1000") # b=1000
-create_overview_diff_figure([name for name in run_names], os.path.join(args.base_dir, 'DWI_pix2pix_grad_resnet9_BtoA'), 1, 12, f"{save_path}/b2000") # b=1000
+create_overview_diff_figure([name for name in run_names], os.path.join(args.base_dir, 'DWI_pix2pix_grad_resnet9_BtoA'), 1, 12, f"{save_path}/b2000") # b=2000

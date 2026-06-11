@@ -95,7 +95,7 @@ if __name__ == "__main__":
         dists_values.append((DISTS()(real.unsqueeze(0), fake.unsqueeze(0))).detach().numpy())
         fsim_values.append(fsim(real.unsqueeze(0), fake.unsqueeze(0), data_range=1.).detach().numpy())
         gmsd_values.append(gmsd(real.unsqueeze(0), fake.unsqueeze(0), data_range=1.).detach().numpy())
-    webpage.save()  # save the HTML
+    #webpage.save()  # save the HTML
     
     # compute and print average metrics
     mean_mse    = np.mean(mse_values)

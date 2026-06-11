@@ -40,6 +40,7 @@ test/.coverage
 test/data/legacy_serialized.pt
 *~
 .idea
+evaluation/DWI_pix2pix_grad_resnet9/real_tests/data/
 
 #Ignore Wandb
 wandb/
